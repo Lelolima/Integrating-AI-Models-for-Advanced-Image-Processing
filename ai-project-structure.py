@@ -1,10 +1,8 @@
 # visualization.py
 import matplotlib.pyplot as plt
 import seaborn as sns
-import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-import pandas as pd
 
 class VisualizationManager:
     @staticmethod
@@ -76,10 +74,10 @@ class VisualizationManager:
         plt.show()
 
 # llm_model.py
-from transformers import AutoModel, AutoTokenizer, AutoModelForSequenceClassification
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 import torch.nn as nn
-from typing import Dict, List
+from typing import Dict
 
 class TransformerModel(nn.Module):
     def __init__(
@@ -91,7 +89,10 @@ class TransformerModel(nn.Module):
         super(TransformerModel, self).__init__()
         self.transformer = AutoModelForSequenceClassification.from_pretrained(
             model_name,
-            num_labels=num_labels
+            num_labels=num_labels,
+            # 'sdpa' (padrão no transformers recente) não devolve pesos de atenção;
+            # 'eager' é necessário para output_attentions / get_attention_weights
+            attn_implementation='eager'
         )
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         
@@ -155,7 +156,6 @@ class TransformerModel(nn.Module):
 # main.py
 import torch
 from torch.utils.data import DataLoader
-import logging
 from tqdm import tqdm
 import numpy as np
 from sklearn.metrics import precision_score, recall_score
@@ -247,7 +247,13 @@ def train_model(
     return model, history
 
 # Example usage
-def main():
+def main(train_loader: DataLoader = None, val_loader: DataLoader = None):
+    """Treina e visualiza. Os DataLoaders (input_ids, attention_mask, labels) devem ser fornecidos."""
+    if train_loader is None or val_loader is None:
+        raise ValueError(
+            'main() precisa de train_loader e val_loader: este repositório não inclui dataset nem DataLoaders.'
+        )
+
     # Initialize model
     model = TransformerModel(
         model_name='bert-base-uncased',
@@ -258,7 +264,7 @@ def main():
     # Create visualization manager
     viz_manager = VisualizationManager()
     
-    # Train model (assuming you have your DataLoader setup)
+    # Train model
     trained_model, history = train_model(model, train_loader, val_loader)
     
     # Plot training metrics
@@ -270,4 +276,7 @@ def main():
     viz_manager.plot_attention_weights(attention_weights, tokens)
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except ValueError as e:
+        raise SystemExit(f"Erro: {e}")

@@ -1,121 +1,63 @@
-Projeto Avançado de IA: Integração de LLM, CNN, RNA e PLN com Visão Computacional
-📋 Descrição
-Este projeto implementa uma solução avançada de IA que integra Large Language Models (LLM), Redes Neurais Convolucionais (CNN), Redes Neurais Artificiais (RNA) e Processamento de Linguagem Natural (PLN) com componentes de visão computacional. O sistema é capaz de processar e analisar dados multimodais, combinando análise de imagens e texto para gerar insights precisos.
+# Integrating AI Models for Advanced Image Processing
 
-🚀 Funcionalidades Principais
-Processamento Multimodal: Integração de dados visuais e textuais
-Análise de Imagens: Utilização de CNNs para processamento de imagens
-Processamento de Texto: Implementação de LLMs e técnicas de PLN
-Visualização Interativa: Dashboard em tempo real das métricas de treinamento
-Pipeline de Integração: Sistema unificado para processamento de dados multimodais
-🛠️ Tecnologias Utilizadas
-Python: Linguagem principal do projeto
-PyTorch: Framework para desenvolvimento de redes neurais
-Hugging Face Transformers: Biblioteca para modelos de linguagem
-React: Frontend para visualizações interativas
-Recharts: Biblioteca de visualização de dados
-Tailwind CSS: Framework CSS para estilização
-📦 Estrutura do Projeto
-bash
-Copiar
-Editar
-src/
-├── data/
-│   ├── __init__.py
-│   ├── data_loader.py          # Carregamento de dados
-│   └── data_preprocessor.py    # Pré-processamento
-├── models/
-│   ├── __init__.py
-│   ├── cnn_model.py           # Modelo CNN
-│   ├── llm_model.py           # Integração LLM
-│   ├── nlp_processor.py       # Processamento PLN
-│   └── integration_model.py   # Modelo de integração
-├── utils/
-│   ├── __init__.py
-│   ├── visualization.py       # Utilitários de visualização
-│   └── metrics.py            # Métricas de avaliação
-├── config/
-│   ├── __init__.py
-│   └── config.py             # Configurações
-└── main.py                   # Arquivo principal
-🚀 Como Começar
-Pré-requisitos
-bash
-Copiar
-Editar
-python >= 3.8
-pytorch >= 1.8.0
-Instalação
-Clone o repositório:
-bash
-Copiar
-Editar
-git clone https://github.com/Lelolima/Integrating-AI-Models-For-Advanced-Image-Processing
-cd nome-do-projeto
-Instale as dependências:
-bash
-Copiar
-Editar
-pip install -r requirements.txt
-Configure as variáveis de ambiente:
-bash
-Copiar
-Editar
-cp .env.example .env
-# Edite o arquivo .env com suas configurações
-Uso
-Prepare seus dados:
-bash
-Copiar
-Editar
-python src/data/data_preprocessor.py
-Treine o modelo:
-bash
-Copiar
-Editar
-python src/main.py --train
-Execute as previsões:
-bash
-Copiar
-Editar
-python src/main.py --predict
-📊 Visualizações
-O projeto inclui um dashboard interativo que mostra:
+> ⚠️ **Estado real (auditoria de 2026-11-22):** apesar do nome, **não há processamento de imagens nem CNN**
+> no código. O que existe é um classificador de **texto** baseado em BERT (Hugging Face) com loop de treino
+> e visualizações de métricas e de pesos de atenção. Não há dataset, DataLoaders, modelos treinados nem
+> resultados de performance no repositório.
 
-Métricas de treinamento em tempo real
-Análise de performance do modelo
-Visualização de attention weights
-Comparativos entre diferentes modelos
-📈 Performance
-O modelo foi avaliado usando as seguintes métricas:
+## Conteúdo
 
-Acurácia
-Precisão
-Recall
-F1-Score
-🤝 Contribuindo
-Fork o projeto
-Crie sua Feature Branch (git checkout -b feature/AmazingFeature)
-Commit suas mudanças (git commit -m 'Add some AmazingFeature')
-Push para a Branch (git push origin feature/AmazingFeature)
-Abra um Pull Request
-📝 Licença
-Este projeto está sob a licença MIT - veja o arquivo LICENSE.md para mais detalhes.
+| Arquivo | O que é |
+|---|---|
+| `ai-project-structure.py` | Três módulos concatenados em um arquivo: `VisualizationManager` (Plotly/Seaborn), `TransformerModel` (`AutoModelForSequenceClassification`, padrão `bert-base-uncased`), `train_model` (loop de treino/validação com acurácia, precisão e recall) e `main(train_loader, val_loader)` |
+| `visualization-component.tsx` | Componente React avulso (Recharts + classes Tailwind) que plota curvas de loss/acurácia com **valores fixos de exemplo** escritos no código. Não há `package.json` nem build para ele. |
+| `requirements.txt` | Dependências Python usadas pelo código |
 
-✨ Agradecimentos
-Hugging Face pela biblioteca Transformers
-Comunidade PyTorch
+A estrutura `src/data`, `src/models`, `src/utils` e os comandos `--train`/`--predict` descritos em versões
+anteriores do README não existem.
 
-📞 Contato
-Wellington de lima catarina
-LinkedIn: wellington-de-lima-catarina
-Email: lelolima806@gmail.com
+## Instalação
 
-Link do projeto: https://github.com/Lelolima/Integrating-AI-Models-For-Advanced-Image-Processing
+Python 3.10+ (testado com 3.12, PyTorch CPU).
 
-🔮 Próximos Passos
- Implementação de novos modelos
- Otimização de performance
- Expansão do dashboard
- Suporte a novos tipos de dados
- Documentação expandida
+```bash
+python -m venv .venv
+source .venv/bin/activate      # Windows: .venv\Scripts\activate
+pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements-dev.txt
+```
+
+## Uso
+
+O script não roda sozinho de forma útil: `main()` exige DataLoaders que produzam dicionários com
+`input_ids`, `attention_mask` e `labels`. Sem eles, `python ai-project-structure.py` termina com uma mensagem
+de erro explicando isso. Exemplo de uso como biblioteca:
+
+```python
+import importlib.util
+spec = importlib.util.spec_from_file_location("ai", "ai-project-structure.py")
+ai = importlib.util.module_from_spec(spec); spec.loader.exec_module(ai)
+ai.main(train_loader, val_loader)   # seus DataLoaders
+```
+
+Na primeira execução, `TransformerModel` baixa `bert-base-uncased` (~440 MB) do Hugging Face (gratuito).
+O treino usa GPU se houver (`cuda`); se não houver, usa CPU.
+
+Não há variáveis de ambiente nem segredos.
+
+## Testes e lint
+
+```bash
+ruff check .
+pytest -q tests                    # sem rede: loop de treino com modelo pequeno real e visualização
+RUN_HF_TESTS=1 pytest -q tests     # inclui teste com BERT real (baixa o modelo)
+```
+
+CI em `.github/workflows/ci.yml` (lint, compilação e testes, sem baixar o BERT).
+
+## Contato
+
+Wellington de Lima Catarina — LinkedIn: wellington-de-lima-catarina
+
+## Licença
+
+O README antigo citava `LICENSE.md`, mas o arquivo não existe no repositório.
